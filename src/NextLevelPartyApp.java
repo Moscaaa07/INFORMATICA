@@ -55,23 +55,36 @@ public class NextLevelPartyApp extends JFrame {
         return pass.matches(pattern);
     }
 
-    // --- 1. SCHERMATA LOGIN ---
     private JPanel createLoginScreen() {
         JPanel p = new JPanel(); p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setBackground(DARK_BG); p.setBorder(new EmptyBorder(60, 40, 40, 40));
 
         JLabel logo = new JLabel("NEXT LEVEL PARTY");
-        logo.setFont(new Font("Orbitron", Font.BOLD, 38)); // Font futuristic se disponibile, altrimenti Monospaced
+        logo.setFont(new Font("Orbitron", Font.BOLD, 30));
         logo.setForeground(NEON_CYAN); logo.setAlignmentX(0.5f);
-
-        JLabel subLogo = new JLabel("PARTY REGISTER");
-        subLogo.setFont(new Font("Arial", Font.ITALIC, 14));
-        subLogo.setForeground(NEON_PURPLE); subLogo.setAlignmentX(0.5f);
 
         JTextField userField = new JTextField(); styleNeonField(userField, "USERNAME", NEON_CYAN);
         JPasswordField passField = new JPasswordField(); styleNeonField(passField, "PASSWORD", NEON_CYAN);
 
-        JButton btnLogin = new JButton("ACCEDI"); styleNeonButton(btnLogin, NEON_PURPLE);
+        // --- TASTO PASSWORD DIMENTICATA ---
+        JButton btnForgot = new JButton("Password dimenticata?");
+        btnForgot.setForeground(Color.GRAY);
+        btnForgot.setFont(new Font("Arial", Font.PLAIN, 12));
+        btnForgot.setContentAreaFilled(false); btnForgot.setBorderPainted(false);
+        btnForgot.setAlignmentX(0.5f);
+        btnForgot.addActionListener(e -> {
+            String u = userField.getText();
+            if(u.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Inserisci il tuo username per recuperare la password.");
+            } else if(userDb.containsKey(u)) {
+                JOptionPane.showMessageDialog(this, "Recupero: La tua password è [" + userDb.get(u) + "]");
+            } else {
+                JOptionPane.showMessageDialog(this, "Utente non trovato nel database.");
+            }
+        });
+
+        RoundedButton btnLogin = new RoundedButton("ACCEDI", 30, NEON_PURPLE);
+        styleNeonButton(btnLogin, NEON_PURPLE);
 
         JButton btnGoReg = new JButton("Non hai un account? Registrati");
         btnGoReg.setForeground(Color.GRAY);
@@ -89,15 +102,17 @@ public class NextLevelPartyApp extends JFrame {
 
         btnGoReg.addActionListener(e -> cl.show(mainPanel, "REGISTER"));
 
-        p.add(logo); p.add(subLogo); p.add(Box.createRigidArea(new Dimension(0, 50)));
+        p.add(logo); p.add(Box.createRigidArea(new Dimension(0, 50)));
         p.add(userField); p.add(Box.createRigidArea(new Dimension(0, 20)));
-        p.add(passField); p.add(Box.createRigidArea(new Dimension(0, 35)));
+        p.add(passField);
+        p.add(Box.createRigidArea(new Dimension(0, 10))); // Spazio minimo
+        p.add(btnForgot); // Posizionato sotto l'immissione
+        p.add(Box.createRigidArea(new Dimension(0, 25))); // Distacco dal tasto Accedi
         p.add(btnLogin); p.add(Box.createRigidArea(new Dimension(0, 20)));
         p.add(btnGoReg);
         return p;
     }
 
-    // --- 2. SCHERMATA REGISTRAZIONE ---
     private JPanel createRegisterScreen() {
         JPanel p = new JPanel(); p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setBackground(DARK_BG); p.setBorder(new EmptyBorder(50, 40, 40, 40));
@@ -112,7 +127,8 @@ public class NextLevelPartyApp extends JFrame {
         JLabel info = new JLabel("<html><center>Min. 8 cifre, 1 Maiuscola, 1 Numero e 1 Speciale</center></html>");
         info.setForeground(Color.GRAY); info.setFont(new Font("Arial", Font.PLAIN, 10)); info.setAlignmentX(0.5f);
 
-        JButton btnReg = new JButton("CONFERMA REGISTRAZIONE"); styleNeonButton(btnReg, NEON_PINK);
+        RoundedButton btnReg = new RoundedButton("CONFERMA REGISTRAZIONE", 30, NEON_PINK);
+        styleNeonButton(btnReg, NEON_PINK);
 
         JButton btnBack = new JButton("← Torna al Login");
         btnBack.setForeground(Color.GRAY); btnBack.setContentAreaFilled(false);
@@ -142,67 +158,24 @@ public class NextLevelPartyApp extends JFrame {
         return p;
     }
 
-    // --- 3. DASHBOARD CON TILE (STILE PARTY) ---
     private JPanel createDashboard(String ruolo) {
         JPanel p = new JPanel(new BorderLayout());
         p.setBackground(DARK_BG);
         boolean isStaff = ruolo.equals("STAFF");
         Color accent = isStaff ? NEON_CYAN : NEON_PURPLE;
-
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(new Color(20, 20, 28));
         header.setPreferredSize(new Dimension(400, 70));
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, accent));
-
         JLabel l = new JLabel("  " + ruolo + " MODE");
         l.setForeground(accent); l.setFont(new Font("Arial", Font.BOLD, 18));
         header.add(l, BorderLayout.WEST);
-
         JButton btnLogout = new JButton("ESCI ");
         btnLogout.setForeground(Color.WHITE); btnLogout.setContentAreaFilled(false);
         btnLogout.addActionListener(e -> cl.show(mainPanel, "LOGIN"));
         header.add(btnLogout, BorderLayout.EAST);
-
-        // Griglia Tile
-        JPanel grid = new JPanel(new GridLayout(3, 2, 15, 15));
-        grid.setBackground(DARK_BG);
-        grid.setBorder(new EmptyBorder(30, 25, 25, 25));
-
-        if (isStaff) {
-            grid.add(createTile("SCANNER", "📸", accent));
-            grid.add(createTile("LISTA", "📝", accent));
-            grid.add(createTile("LOGS", "🔍", accent));
-            grid.add(createTile("POSTI", "📍", accent));
-        } else {
-            grid.add(createTile("EVENTI", "💃", accent));
-            grid.add(createTile("IL MIO QR", "🆔", accent));
-            grid.add(createTile("AMICI", "👥", accent));
-            grid.add(createTile("PREMI", "🎁", accent));
-        }
-
         p.add(header, BorderLayout.NORTH);
-        p.add(grid, BorderLayout.CENTER);
         return p;
-    }
-
-    private JPanel createTile(String title, String icon, Color c) {
-        JPanel t = new JPanel(new BorderLayout());
-        t.setBackground(new Color(30, 30, 40));
-        t.setBorder(BorderFactory.createLineBorder(c, 1));
-
-        JLabel i = new JLabel(icon, 0); i.setFont(new Font("Arial", Font.PLAIN, 35));
-        JLabel text = new JLabel(title, 0); text.setForeground(Color.WHITE);
-        text.setFont(new Font("Arial", Font.BOLD, 11));
-
-        t.add(i, BorderLayout.CENTER);
-        t.add(text, BorderLayout.SOUTH);
-
-        t.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { t.setBackground(new Color(45, 45, 60)); }
-            public void mouseExited(MouseEvent e) { t.setBackground(new Color(30, 30, 40)); }
-            public void mousePressed(MouseEvent e) { JOptionPane.showMessageDialog(null, "Apertura: " + title); }
-        });
-        return t;
     }
 
     private void styleNeonField(JTextField f, String title, Color c) {
@@ -215,11 +188,29 @@ public class NextLevelPartyApp extends JFrame {
     }
 
     private void styleNeonButton(JButton b, Color c) {
-        b.setBackground(c); b.setForeground(Color.WHITE);
         b.setFont(new Font("Arial", Font.BOLD, 14));
         b.setMaximumSize(new Dimension(320, 55));
-        b.setAlignmentX(0.5f); b.setFocusPainted(false);
-        b.setBorder(BorderFactory.createEmptyBorder());
+        b.setAlignmentX(0.5f);
+        b.setFocusPainted(false);
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+    }
+
+    class RoundedButton extends JButton {
+        private int radius;
+        private Color bgColor;
+        public RoundedButton(String label, int radius, Color bgColor) {
+            super(label); this.radius = radius; this.bgColor = bgColor;
+            setOpaque(false); setForeground(Color.WHITE);
+        }
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(bgColor);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+            super.paintComponent(g2);
+            g2.dispose();
+        }
     }
 
     public static void main(String[] args) {
