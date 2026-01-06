@@ -12,8 +12,8 @@ public class NextLevelPartyApp extends JFrame {
     private HashMap<String, String> userDb = new HashMap<>();
     private final String DB_FILE = "users_database.txt";
 
-    // Palette Neon
-    private final Color DARK_BG = new Color(10, 10, 12);
+    // Palette Neon Party
+    private final Color DARK_BG = new Color(10, 10, 15);
     private final Color NEON_PURPLE = new Color(191, 0, 255);
     private final Color NEON_CYAN = new Color(0, 255, 255);
     private final Color NEON_PINK = new Color(255, 0, 150);
@@ -41,7 +41,7 @@ public class NextLevelPartyApp extends JFrame {
                 String[] parts = line.split(":");
                 if (parts.length == 2) userDb.put(parts[0], parts[1]);
             }
-        } catch (IOException e) { System.out.println("Database non trovato."); }
+        } catch (IOException e) { System.out.println("Nuovo database pronto."); }
     }
 
     private void saveUserToFile(String user, String pass) {
@@ -50,23 +50,32 @@ public class NextLevelPartyApp extends JFrame {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+    private boolean isPasswordValid(String pass) {
+        String pattern = "^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&+=!\\._-])(?=\\S+$).{8,}$";
+        return pass.matches(pattern);
+    }
+
+    // --- 1. SCHERMATA LOGIN ---
     private JPanel createLoginScreen() {
         JPanel p = new JPanel(); p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.setBackground(DARK_BG); p.setBorder(new EmptyBorder(50, 40, 50, 40));
+        p.setBackground(DARK_BG); p.setBorder(new EmptyBorder(60, 40, 40, 40));
 
         JLabel logo = new JLabel("NEXT LEVEL PARTY");
-        logo.setFont(new Font("Monospaced", Font.BOLD, 30));
+        logo.setFont(new Font("Orbitron", Font.BOLD, 38)); // Font futuristic se disponibile, altrimenti Monospaced
         logo.setForeground(NEON_CYAN); logo.setAlignmentX(0.5f);
+
+        JLabel subLogo = new JLabel("PARTY REGISTER");
+        subLogo.setFont(new Font("Arial", Font.ITALIC, 14));
+        subLogo.setForeground(NEON_PURPLE); subLogo.setAlignmentX(0.5f);
 
         JTextField userField = new JTextField(); styleNeonField(userField, "USERNAME", NEON_CYAN);
         JPasswordField passField = new JPasswordField(); styleNeonField(passField, "PASSWORD", NEON_CYAN);
 
         JButton btnLogin = new JButton("ACCEDI"); styleNeonButton(btnLogin, NEON_PURPLE);
 
-        JButton btnGoReg = new JButton("Registrati");
+        JButton btnGoReg = new JButton("Non hai un account? Registrati");
         btnGoReg.setForeground(Color.GRAY);
-        btnGoReg.setContentAreaFilled(false);
-        btnGoReg.setBorderPainted(false);
+        btnGoReg.setContentAreaFilled(false); btnGoReg.setBorderPainted(false);
         btnGoReg.setAlignmentX(0.5f);
 
         btnLogin.addActionListener(e -> {
@@ -77,63 +86,63 @@ public class NextLevelPartyApp extends JFrame {
                 mainPanel.add(createDashboard("GUEST"), "DASH_GUEST"); cl.show(mainPanel, "DASH_GUEST");
             } else { JOptionPane.showMessageDialog(this, "Dati errati!"); }
         });
+
         btnGoReg.addActionListener(e -> cl.show(mainPanel, "REGISTER"));
 
-        // AGGIUNTI SPAZIATORI DI ALMENO 15-20 PX
-        p.add(logo);
-        p.add(Box.createRigidArea(new Dimension(0, 40)));
-        p.add(userField);
-        p.add(Box.createRigidArea(new Dimension(0, 20))); // Spazio tra campi
-        p.add(passField);
-        p.add(Box.createRigidArea(new Dimension(0, 30))); // Spazio prima del login
-        p.add(btnLogin);
-        p.add(Box.createRigidArea(new Dimension(0, 20))); // Spazio prima di registrati
+        p.add(logo); p.add(subLogo); p.add(Box.createRigidArea(new Dimension(0, 50)));
+        p.add(userField); p.add(Box.createRigidArea(new Dimension(0, 20)));
+        p.add(passField); p.add(Box.createRigidArea(new Dimension(0, 35)));
+        p.add(btnLogin); p.add(Box.createRigidArea(new Dimension(0, 20)));
         p.add(btnGoReg);
         return p;
     }
 
+    // --- 2. SCHERMATA REGISTRAZIONE ---
     private JPanel createRegisterScreen() {
         JPanel p = new JPanel(); p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.setBackground(DARK_BG); p.setBorder(new EmptyBorder(50, 40, 50, 40));
+        p.setBackground(DARK_BG); p.setBorder(new EmptyBorder(50, 40, 40, 40));
 
-        JLabel title = new JLabel("NUOVO ACCOUNT");
-        title.setFont(new Font("Arial", Font.BOLD, 22));
+        JLabel title = new JLabel("JOIN THE PARTY");
+        title.setFont(new Font("Arial", Font.BOLD, 24));
         title.setForeground(NEON_PINK); title.setAlignmentX(0.5f);
 
         JTextField newUser = new JTextField(); styleNeonField(newUser, "UTENTE", NEON_PINK);
         JPasswordField newPass = new JPasswordField(); styleNeonField(newPass, "PASSWORD", NEON_PINK);
 
-        JButton btnReg = new JButton("CONFERMA"); styleNeonButton(btnReg, NEON_PINK);
+        JLabel info = new JLabel("<html><center>Min. 8 cifre, 1 Maiuscola, 1 Numero e 1 Speciale</center></html>");
+        info.setForeground(Color.GRAY); info.setFont(new Font("Arial", Font.PLAIN, 10)); info.setAlignmentX(0.5f);
 
-        JButton btnBack = new JButton("← Torna indietro");
-        btnBack.setForeground(Color.GRAY);
-        btnBack.setContentAreaFilled(false);
-        btnBack.setAlignmentX(0.5f);
+        JButton btnReg = new JButton("CONFERMA REGISTRAZIONE"); styleNeonButton(btnReg, NEON_PINK);
+
+        JButton btnBack = new JButton("← Torna al Login");
+        btnBack.setForeground(Color.GRAY); btnBack.setContentAreaFilled(false);
+        btnBack.setBorderPainted(false); btnBack.setAlignmentX(0.5f);
         btnBack.addActionListener(e -> cl.show(mainPanel, "LOGIN"));
 
         btnReg.addActionListener(e -> {
-            if(!newUser.getText().isEmpty()) {
-                userDb.put(newUser.getText(), new String(newPass.getPassword()));
-                saveUserToFile(newUser.getText(), new String(newPass.getPassword()));
-                JOptionPane.showMessageDialog(this, "Registrato!");
+            String pass = new String(newPass.getPassword());
+            if(newUser.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Scegli un nome!");
+            } else if (!isPasswordValid(pass)) {
+                JOptionPane.showMessageDialog(this, "Password troppo debole!");
+            } else {
+                userDb.put(newUser.getText(), pass);
+                saveUserToFile(newUser.getText(), pass);
+                JOptionPane.showMessageDialog(this, "Registrazione completata!");
                 cl.show(mainPanel, "LOGIN");
             }
         });
 
-        // AGGIUNTI SPAZIATORI DI ALMENO 15-20 PX
-        p.add(title);
-        p.add(Box.createRigidArea(new Dimension(0, 40)));
-        p.add(newUser);
-        p.add(Box.createRigidArea(new Dimension(0, 20)));
-        p.add(newPass);
-        p.add(Box.createRigidArea(new Dimension(0, 30)));
-        p.add(btnReg);
-        p.add(Box.createRigidArea(new Dimension(0, 20)));
+        p.add(title); p.add(Box.createRigidArea(new Dimension(0, 45)));
+        p.add(newUser); p.add(Box.createRigidArea(new Dimension(0, 20)));
+        p.add(newPass); p.add(Box.createRigidArea(new Dimension(0, 5)));
+        p.add(info); p.add(Box.createRigidArea(new Dimension(0, 30)));
+        p.add(btnReg); p.add(Box.createRigidArea(new Dimension(0, 20)));
         p.add(btnBack);
         return p;
     }
 
-    // Dashboard, Style e Utility...
+    // --- 3. DASHBOARD CON TILE (STILE PARTY) ---
     private JPanel createDashboard(String ruolo) {
         JPanel p = new JPanel(new BorderLayout());
         p.setBackground(DARK_BG);
@@ -141,30 +150,34 @@ public class NextLevelPartyApp extends JFrame {
         Color accent = isStaff ? NEON_CYAN : NEON_PURPLE;
 
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(20, 20, 25));
-        header.setPreferredSize(new Dimension(400, 60));
+        header.setBackground(new Color(20, 20, 28));
+        header.setPreferredSize(new Dimension(400, 70));
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, accent));
 
-        JLabel l = new JLabel("  " + ruolo + " PANEL");
-        l.setForeground(accent); l.setFont(new Font("Arial", Font.BOLD, 16));
+        JLabel l = new JLabel("  " + ruolo + " MODE");
+        l.setForeground(accent); l.setFont(new Font("Arial", Font.BOLD, 18));
         header.add(l, BorderLayout.WEST);
 
-        JButton btnLogout = new JButton("LOGOUT ");
-        btnLogout.setForeground(Color.WHITE);
-        btnLogout.setContentAreaFilled(false);
+        JButton btnLogout = new JButton("ESCI ");
+        btnLogout.setForeground(Color.WHITE); btnLogout.setContentAreaFilled(false);
         btnLogout.addActionListener(e -> cl.show(mainPanel, "LOGIN"));
         header.add(btnLogout, BorderLayout.EAST);
 
+        // Griglia Tile
         JPanel grid = new JPanel(new GridLayout(3, 2, 15, 15));
         grid.setBackground(DARK_BG);
-        grid.setBorder(new EmptyBorder(25, 25, 25, 25));
+        grid.setBorder(new EmptyBorder(30, 25, 25, 25));
 
         if (isStaff) {
-            grid.add(createMenuTile("SCANNER", "🔍", accent, e -> JOptionPane.showMessageDialog(this, "Scanner...")));
-            grid.add(createMenuTile("LISTA NOMI", "📋", accent, e -> openRegistry()));
+            grid.add(createTile("SCANNER", "📸", accent));
+            grid.add(createTile("LISTA", "📝", accent));
+            grid.add(createTile("LOGS", "🔍", accent));
+            grid.add(createTile("POSTI", "📍", accent));
         } else {
-            grid.add(createMenuTile("EVENTI", "📅", accent, e -> openEventsList()));
-            grid.add(createMenuTile("MIO QR", "🎟️", accent, null));
+            grid.add(createTile("EVENTI", "💃", accent));
+            grid.add(createTile("IL MIO QR", "🆔", accent));
+            grid.add(createTile("AMICI", "👥", accent));
+            grid.add(createTile("PREMI", "🎁", accent));
         }
 
         p.add(header, BorderLayout.NORTH);
@@ -172,42 +185,41 @@ public class NextLevelPartyApp extends JFrame {
         return p;
     }
 
-    private void openEventsList() {
-        JOptionPane.showMessageDialog(this, "Sezione Eventi in arrivo...");
-    }
+    private JPanel createTile(String title, String icon, Color c) {
+        JPanel t = new JPanel(new BorderLayout());
+        t.setBackground(new Color(30, 30, 40));
+        t.setBorder(BorderFactory.createLineBorder(c, 1));
 
-    private void openRegistry() {
-        JFrame f = new JFrame("Registro Iscritti");
-        f.setSize(350, 500); f.setLocationRelativeTo(null);
-        DefaultListModel<String> model = new DefaultListModel<>();
-        for (String user : userDb.keySet()) model.addElement("👤 " + user);
-        JList<String> list = new JList<>(model);
-        list.setBackground(new Color(20,20,25)); list.setForeground(NEON_CYAN);
-        f.add(new JScrollPane(list)); f.setVisible(true);
-    }
+        JLabel i = new JLabel(icon, 0); i.setFont(new Font("Arial", Font.PLAIN, 35));
+        JLabel text = new JLabel(title, 0); text.setForeground(Color.WHITE);
+        text.setFont(new Font("Arial", Font.BOLD, 11));
 
-    private JPanel createMenuTile(String title, String emoji, Color c, ActionListener action) {
-        JPanel tile = new JPanel(new BorderLayout());
-        tile.setBackground(new Color(25, 25, 30));
-        tile.setBorder(BorderFactory.createLineBorder(c, 1));
-        JLabel lEmoji = new JLabel(emoji, 0); lEmoji.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 40));
-        JLabel lText = new JLabel(title, 0); lText.setForeground(Color.WHITE);
-        tile.add(lEmoji, BorderLayout.CENTER); tile.add(lText, BorderLayout.SOUTH);
-        tile.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { if (action != null) action.actionPerformed(null); }
+        t.add(i, BorderLayout.CENTER);
+        t.add(text, BorderLayout.SOUTH);
+
+        t.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) { t.setBackground(new Color(45, 45, 60)); }
+            public void mouseExited(MouseEvent e) { t.setBackground(new Color(30, 30, 40)); }
+            public void mousePressed(MouseEvent e) { JOptionPane.showMessageDialog(null, "Apertura: " + title); }
         });
-        return tile;
+        return t;
     }
 
     private void styleNeonField(JTextField f, String title, Color c) {
-        f.setMaximumSize(new Dimension(320, 50)); f.setBackground(new Color(20, 20, 25)); f.setForeground(Color.WHITE);
-        f.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(c, 1), title));
-        ((TitledBorder)f.getBorder()).setTitleColor(c);
+        f.setMaximumSize(new Dimension(320, 50));
+        f.setBackground(new Color(25, 25, 35));
+        f.setForeground(Color.WHITE);
+        f.setCaretColor(c);
+        TitledBorder tb = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(c, 1), title);
+        tb.setTitleColor(c); f.setBorder(tb);
     }
 
     private void styleNeonButton(JButton b, Color c) {
-        b.setBackground(c); b.setForeground(Color.WHITE); b.setMaximumSize(new Dimension(320, 50));
+        b.setBackground(c); b.setForeground(Color.WHITE);
+        b.setFont(new Font("Arial", Font.BOLD, 14));
+        b.setMaximumSize(new Dimension(320, 55));
         b.setAlignmentX(0.5f); b.setFocusPainted(false);
+        b.setBorder(BorderFactory.createEmptyBorder());
     }
 
     public static void main(String[] args) {
